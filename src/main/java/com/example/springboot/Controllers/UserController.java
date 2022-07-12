@@ -41,6 +41,7 @@ public class UserController {
     public ResponseEntity<List<User>> getUsers(){
         return new ResponseEntity<>(userDAO.findAll(), HttpStatus.OK);
     }
+
     @GetMapping("/users/{id}")
     public ResponseEntity<User> getUserById (@PathVariable int id){
         return new ResponseEntity<>(userDAO.findById(id).get(), HttpStatus.OK);
