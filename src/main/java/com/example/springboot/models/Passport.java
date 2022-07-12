@@ -2,10 +2,7 @@ package com.example.springboot.models;
 
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -13,10 +10,15 @@ import javax.persistence.Id;
 @Setter
 @ToString
 @Entity
-public class User {
+public class Passport {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="pass_id")
+    private Passport passport;
+
 
 }
