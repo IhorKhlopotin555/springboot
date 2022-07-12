@@ -1,13 +1,20 @@
 package com.example.springboot.Controllers;
 
+import com.example.springboot.dao.PassportDAO;
 import com.example.springboot.dao.UserDAO;
+import com.example.springboot.models.Passport;
 import com.example.springboot.models.User;
+import com.example.springboot.models.UserPassportRequestDTO;
+import com.example.springboot.models.dto.UserPassportResponseDTO;
+import com.example.springboot.services.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -17,11 +24,13 @@ public class UserController {
 
 
     private UserDAO userDAO;
+    private PassportDAO passportDAO;
+    private UserService userService;
 
 
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.OK)
-    public void saveUser(@RequestBody User user){
+    public void saveUser(@RequestBody @Valid User user){
         userDAO.save(user);
     }
 
@@ -59,6 +68,17 @@ public class UserController {
         User save = userDAO.save(user);
 
         return new ResponseEntity<>(save, HttpStatus.ACCEPTED);
+    }
+    @PatchMapping("/{id}")
+    public ResponseEntity<UserPassportResponseDTO> updateUser(@RequestBody UserPassportRequestDTO dto){
+    int user_id = dto.getUser_id();
+    int passport_id = dto.getPassport_id();
+    User user = userDAO.findById(user_id).get();
+    Passport passport = passportDAO.findById(passport_id).get();
+    user.setPassport(passport);
+    userDAO.save(user);
+    UserPassportResponseDTO responseDTO = new UserPassportResponseDTO(user);
+    return new ResponseEntity(responseDTO, HttpStatus.OK);
     }
 }
 
