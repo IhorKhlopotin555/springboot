@@ -4,8 +4,8 @@ import lombok.*;
 
 import javax.persistence.*;
 
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @ToString
@@ -15,10 +15,10 @@ public class Passport {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
+    private String photo; //name of file
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="pass_id")
-    private Passport passport;
-
-
+    public Passport(String name, String photo) {
+        this.name = name;
+        this.photo = photo;
+    }
 }
