@@ -8,6 +8,7 @@ import com.example.springboot.models.UserPassportRequestDTO;
 import com.example.springboot.models.dto.UserPassportResponseDTO;
 import com.example.springboot.services.UserService;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
+@Data
 //@RequestMapping("/users")
 public class UserController {
 
@@ -31,7 +33,7 @@ public class UserController {
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.OK)
     public void saveUser(@RequestBody @Valid User user){
-        userDAO.save(user);
+        userService.save(user);
     }
 
 //    @GetMapping("/users")
@@ -46,10 +48,10 @@ public class UserController {
 //        return new ResponseEntity<>(user, HttpStatus.OK);
 //    }
 
-    @GetMapping("/users")
-    public ResponseEntity<List<User>> getUsers(){
-        return new ResponseEntity<>(userDAO.findAll(), HttpStatus.OK);
-    }
+//    @GetMapping("/users")
+//    public ResponseEntity<List<User>> getUsers(){
+//        return new ResponseEntity<>(userDAO.findAll(), HttpStatus.OK);
+//    }
 
     @GetMapping("/users/{id}")
     public ResponseEntity<User> getUserById (@PathVariable int id){
@@ -63,12 +65,12 @@ public class UserController {
 
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
-    @PatchMapping("/users")
-    public ResponseEntity<User> updateUser(@RequestBody User user){
-        User save = userDAO.save(user);
-
-        return new ResponseEntity<>(save, HttpStatus.ACCEPTED);
-    }
+//    @PatchMapping("/users")
+//    public ResponseEntity<User> updateUser(@RequestBody User user){
+//        User save = userDAO.save(user);
+//
+//        return new ResponseEntity<>(save, HttpStatus.ACCEPTED);
+//    }
     @PatchMapping("/{id}")
     public ResponseEntity<UserPassportResponseDTO> updateUser(@RequestBody UserPassportRequestDTO dto){
     int user_id = dto.getUser_id();
@@ -79,6 +81,10 @@ public class UserController {
     userDAO.save(user);
     UserPassportResponseDTO responseDTO = new UserPassportResponseDTO(user);
     return new ResponseEntity(responseDTO, HttpStatus.OK);
+    }
+    @GetMapping("/activateAccount/{id}")
+    public ResponseEntity<String> activateAccount(@PathVariable int id){
+        return userService.activateUserAccount(id);
     }
 }
 

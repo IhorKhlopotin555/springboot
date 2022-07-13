@@ -35,4 +35,6 @@ public class User {
     )
     private List<Card> cards;
 
+    private boolean isActivated = false;
+    private String email;
 }
