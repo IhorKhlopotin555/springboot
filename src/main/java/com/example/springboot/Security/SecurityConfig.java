@@ -1,6 +1,7 @@
 package com.example.springboot.Security;
 
 import com.example.springboot.dao.CustomerDAO;
+import com.example.springboot.models.Customer;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,9 +10,13 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -19,6 +24,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 
 @Configuration
@@ -28,13 +34,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 private CustomerDAO customerDAO;
 
+@Bean
+public PasswordEncoder passwordEncoder(){
+    return new BCryptPasswordEncoder();
+}
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 auth.userDetailsService(new UserDetailsService() {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         System.out.println(username);
-        return null;
+        Customer customer = customerDAO.findByLogin(username);
+        User user = new User(
+                username,
+                customer.getPassword(),
+                customer.getRoles()
+                        .stream()
+                        .map(role -> new SimpleGrantedAuthority(role.name())).collect(Collectors.toList())
+        );
+        return user;
     }
 });
     }
@@ -45,7 +64,8 @@ auth.userDetailsService(new UserDetailsService() {
         http.authorizeHttpRequests()
                 .antMatchers(HttpMethod.GET, "/").permitAll()
                 .antMatchers(HttpMethod.POST, "/").hasRole("ADMIN")
-                .antMatchers(HttpMethod.POST, "/users").hasAnyRole("ADMIN", "MANAGER", "USER")
+                .antMatchers(HttpMethod.POST, "/customers").permitAll()
+                .antMatchers("/customers").hasAnyRole("ADMIN", "MANAGER", "USER")
                 .and();
 
         http = http.httpBasic().and();
