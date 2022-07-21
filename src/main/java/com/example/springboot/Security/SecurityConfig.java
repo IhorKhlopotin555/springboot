@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 private CustomerDAO customerDAO;
+private UserDetailsService userDetailsService;
 
 @Bean
 public PasswordEncoder passwordEncoder(){
@@ -41,21 +42,8 @@ public PasswordEncoder passwordEncoder(){
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-auth.userDetailsService(new UserDetailsService() {
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        System.out.println(username);
-        Customer customer = customerDAO.findByLogin(username);
-        User user = new User(
-                username,
-                customer.getPassword(),
-                customer.getRoles()
-                        .stream()
-                        .map(role -> new SimpleGrantedAuthority(role.name())).collect(Collectors.toList())
-        );
-        return user;
-    }
-});
+auth.userDetailsService(userDetailsService);
+
     }
 
     @Override
